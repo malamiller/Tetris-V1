@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
-    bucket = "redditbucketclone1708" # Replace with your actual S3 bucket name
-    key    = "Jenkins/terraform.tfstate"
-    region = "ca-central-1"
+    bucket = "tetris-dep-001" # Replace with your actual S3 bucket name
+    key    = "Terraform"
+    region = "us-east-1"
   }
 }
