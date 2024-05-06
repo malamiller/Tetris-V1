@@ -26,6 +26,14 @@ data "aws_vpc" "default" {
   default = true
 }
 #get public subnets for cluster
+data "aws_subnet_ids" "public" {
+  vpc_id            = data.aws_vpc.default.id
+  filter {
+    name   = "map-public-ip-on-launch"
+    values = ["true"]
+  }
+}
+
 data "aws_subnet" "us-east-1a" {
   filter {
     name   = "availability-zone"
