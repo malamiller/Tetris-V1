@@ -27,38 +27,20 @@ data "aws_vpc" "default" {
 }
 #get public subnets for cluster
 data "aws_subnet_ids" "public" {
-  vpc_id            = data.aws_vpc.default.id
-  filter {
-    name   = "map-public-ip-on-launch"
-    values = ["true"]
-  }
+  vpc_id = data.aws_vpc.default.id
 }
 
-data "aws_subnet" "us-east-1a" {
-  filter {
-    name   = "availability-zone"
-    values = ["us-east-1a"]
-  }
-}
-
-data "aws_subnet" "us-east-1b" {
-  filter {
-    name   = "availability-zone"
-    values = ["us-east-1b"]
-  }
-}
+data "aws_availability_zones" "available" {}
 #cluster provision
 resource "aws_eks_cluster" "example" {
   name     = "EKS_CLOUD"
   role_arn = aws_iam_role.example.arn
 
   vpc_config {
-      subnet_ids = [
-      # Specify subnets from at least two different availability zones
-      data.aws_subnet.us-east-1a.id,
-      data.aws_subnet.us-east-1b.id
-    ]
+    subnet_ids = slice(data.aws_subnet_ids.public.ids, 0, 2) // Example: using first two subnets
   }
+  # other configurations...
+}
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
   # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
@@ -102,7 +84,7 @@ resource "aws_eks_node_group" "example" {
   cluster_name    = aws_eks_cluster.example.name
   node_group_name = "Node-cloud"
   node_role_arn   = aws_iam_role.example1.arn
-  subnet_ids      = data.aws_subnets.public.ids
+  subnet_ids      = slice(data.aws_subnet_ids.public.ids, 0, 2) // Example: using first two subnets
 
   scaling_config {
     desired_size = 1
