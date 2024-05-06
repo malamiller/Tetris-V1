@@ -26,7 +26,7 @@ data "aws_vpc" "default" {
   default = true
 }
 #get public subnets for cluster
-data "aws_subnet_ids" "public" {
+data "aws_subnet" "public" {
   vpc_id = data.aws_vpc.default.id
 }
 
